@@ -31,7 +31,7 @@ const resolvers = {
             const token = signToken(user);
             return { token, user };
         },
-        saveBook: async (_, { bookId }, context) => {
+        saveBook: async (_, { bookData }, context) => {
             if (context.user) {
                 const updatedUser = await User.findByIdAndUpdate(
                    context.user._id,
@@ -39,18 +39,19 @@ const resolvers = {
                    { new: true }
                 );
             }
-            throw new AuthError('You need to be logged in!');
+            // throw new AuthError('You need to be logged in!');
         },
         removeBook: async (_, { bookId }, context) => {
+            console.log("server/schema/resolvers.js/bookId ---> ", bookId);
             if (context.user) {
                 const updatedUser = await User.findOneAndUpdate(
-                    context.user._id,
-                    { $pull: { savedBooks: { bookId } } },
+                    { _id: context.user._id },
+                    { $pull: { savedBooks: { bookId: bookId } } },
                     { new: true }
                 );
                 return updatedUser;
             }
-            throw new AuthError('You need to be logged in!');
+            // throw new AuthError('You need to be logged in!');
         },
     },
 };

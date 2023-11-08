@@ -7,21 +7,17 @@ import {
   Card,
   Row
 } from 'react-bootstrap';
-
-//Old Code
-// import Auth from '../utils/auth';
-import { saveBook, searchGoogleBooks } from '../utils/API';
-import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
-//Old Code
-//New Code
 import { useQuery, useMutation } from '@apollo/client';
+import Auth from '../utils/auth';
+import { searchGoogleBooks } from '../utils/API';
+import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
 import { GET_ME } from '../utils/queries';
 import { SAVE_BOOK } from '../utils/mutations';
 
 const SearchBooks = () => {
 //New Code
   const { loading, data } = useQuery(GET_ME);
-  const [saveBook, { error }] = useMutation(SAVE_BOOK);
+
 
   // create state for holding returned google api data
   const [searchedBooks, setSearchedBooks] = useState([]);
@@ -35,7 +31,8 @@ const SearchBooks = () => {
   // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
   useEffect(() => {
     return () => saveBookIds(savedBookIds);
-  }, [savedBookIds]);
+  });
+  // }, [savedBookIds]);
 
   // create method to search for books and set state on form submit
   const handleFormSubmit = async (event) => {
@@ -68,30 +65,41 @@ const SearchBooks = () => {
       console.error(err);
     }
   };
-
+//New Code
+  const [saveBook, { error }] = useMutation(SAVE_BOOK);
   // create function to handle saving a book to our database
   const handleSaveBook = async (bookId) => {
     // find the book in `searchedBooks` state by the matching id
     const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
 
+    if (!bookToSave) {
+      console.error(`No book found with ID ${bookId}`);
+      return;
+    }
+
     // get token
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
     if (!token) {
+      console.error('No token found, user must be logged in to save books');
       return false;
     }
-
+    
     try {
-      const response = await saveBook(bookToSave, token);
-
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
+      // const response = await saveBook(bookToSave, token);
+      // const { data } = 
+      await saveBook({
+        variables: { bookData: { ...bookToSave }}
+      });
+      // if (!response.ok) {
+      //   throw new Error('something went wrong!');
+      // }
 
       // if book successfully saves to user's account, save book id to state
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
     } catch (err) {
       console.error(err);
+      alert(`An error occurred: ${err.message}`);
     }
   };
 
@@ -140,8 +148,8 @@ const SearchBooks = () => {
                     <Card.Title>{book.title}</Card.Title>
                     <p className='small'>Authors: {book.authors}</p>
                     <Card.Text>{book.description}</Card.Text>
-                    {/* {Auth.loggedIn() && ( */}
-                    {data?.me && (
+                    {Auth.loggedIn() && (
+                    // {data?.me && (
                       <Button
                         disabled={savedBookIds?.some((savedBookId) => savedBookId === book.bookId)}
                         className='btn-block btn-info'
