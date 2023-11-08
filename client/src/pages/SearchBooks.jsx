@@ -10,8 +10,8 @@ import {
 
 //Old Code
 // import Auth from '../utils/auth';
-// import { saveBook, searchGoogleBooks } from '../utils/API';
-// import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
+import { saveBook, searchGoogleBooks } from '../utils/API';
+import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
 //Old Code
 //New Code
 import { useQuery, useMutation } from '@apollo/client';
