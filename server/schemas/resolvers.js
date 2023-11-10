@@ -4,10 +4,12 @@ const { signToken} = require('../utils/auth');
 const resolvers = {
     Query: {
         me: async (parent, args, context) => {
+            console.log("Hit Me Query")
             if (context.user) {
-                return User.findOne({ _id: context.user._id }).populate('savedBooks');
+                console.log("Hit Me 2")
+                const payload = await User.findOne({ _id: context.user._id }).populate('savedBooks');
+                return payload;
             }
-            throw new AuthError('You need to be logged in!');
         }
     },
     Mutation: {
@@ -25,9 +27,6 @@ const resolvers = {
         },
         addUser: async (parent, { username, email, password }) => {
             const user = await User.create({ username, email, password });
-            // if (!user) {
-            //     throw new AuthError('Something is wrong!');
-            // }
             const token = signToken(user);
             return { token, user };
         },
@@ -38,8 +37,8 @@ const resolvers = {
                    { $push: { savedBooks: bookData } },
                    { new: true }
                 );
+                return updatedUser;
             }
-            // throw new AuthError('You need to be logged in!');
         },
         removeBook: async (_, { bookId }, context) => {
             console.log("server/schema/resolvers.js/bookId ---> ", bookId);
@@ -51,7 +50,6 @@ const resolvers = {
                 );
                 return updatedUser;
             }
-            // throw new AuthError('You need to be logged in!');
         },
     },
 };
