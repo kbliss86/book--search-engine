@@ -1,5 +1,3 @@
-// const { gql } = require('apollo-server-express');
-
 const typeDefs = `
     type Query {
         me: User
